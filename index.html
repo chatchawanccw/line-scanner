@@ -187,7 +187,6 @@
             container.insertAdjacentHTML('afterbegin', logHtml);
         }
 
-        // 📌 ระบบยิงข้อมูล API ไปหา Google Apps Script
         function handleSync() {
             if (scannedItems.length === 0) return alert("กรุณาสแกนอย่างน้อย 1 รายการครับ");
             if(isCameraRunning) stopLiveCamera();
@@ -196,28 +195,22 @@
             btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> กำลังบันทึกข้อมูล...';
             btn.disabled = true;
 
-            const payload = { workOrderId: "", itemCode: "Brazil Santos", items: scannedItems };
+            const payload = { workOrderId: currentWoId, itemCode: "Brazil Santos", items: scannedItems };
 
             fetch(GOOGLE_API_URL, {
                 method: 'POST',
-                // ใช้ text/plain เพื่อป้องกันปัญหา Cross-Origin (CORS) ของ Google
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(data => {
                 alert("บันทึกสำเร็จ!");
-                scannedItems = []; updateUI();
-                document.getElementById('scanLogContainer').innerHTML = '<div id="emptyLog" class="text-center py-6 border rounded-lg">ยังไม่มีข้อมูลการสแกน</div>';
-                btn.innerHTML = '<span class="material-symbols-outlined">cloud_sync</span> บันทึกและอัปเดต (0)';
-                btn.disabled = false;
+                // บันทึกเสร็จแล้ว เด้งกลับหน้าแรก LIFF ทันที
+                window.location.href = "https://liff.line.me/2010761292-fHq83HiZ"; 
             })
             .catch(err => {
-                alert("ส่งข้อมูลแล้ว! (คุณสามารถสแกนบาร์โค้ดล็อตต่อไปได้เลย)");
-                scannedItems = []; updateUI();
-                document.getElementById('scanLogContainer').innerHTML = '<div id="emptyLog" class="text-center py-6 border rounded-lg">ยังไม่มีข้อมูลการสแกน</div>';
-                btn.innerHTML = '<span class="material-symbols-outlined">cloud_sync</span> บันทึกและอัปเดต (0)';
-                btn.disabled = false;
+                alert("ส่งข้อมูลแล้ว!");
+                window.location.href = "https://liff.line.me/2010761292-fHq83HiZ";
             });
         }
     </script>
