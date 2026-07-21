@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Create Work Order</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: "#271310", "on-primary": "#ffffff", surface: "#f4faff", "on-surface": "#111d23", "on-surface-variant": "#504442", "surface-container-lowest": "#ffffff", "surface-container-low": "#e9f6fd", "outline-variant": "#d3c3c0", error: "#ba1a1a" },
+                    fontFamily: { sans: ['Noto Sans Thai', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface text-on-surface font-sans min-h-screen flex flex-col p-4 antialiased">
+
+    <header class="flex items-center mb-6">
+        <a href="admin_dashboard.html" class="mr-3 p-2 bg-surface-container-low rounded-full active:scale-95 transition-transform border border-outline-variant flex items-center justify-center text-on-surface-variant">
+            <span class="material-symbols-outlined">arrow_back</span>
+        </a>
+        <h1 class="text-2xl font-bold tracking-tight text-primary">สร้างใบงานใหม่</h1>
+    </header>
+
+    <main class="w-full max-w-md mx-auto bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant">
+        <form id="createWorkOrderForm" onsubmit="handleCreateWorkOrder(event)" class="flex flex-col gap-4">
+            
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-on-surface-variant uppercase">รหัสใบงาน</label>
+                <input type="text" id="workId" readonly class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg font-mono font-bold text-primary opacity-80 cursor-not-allowed">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">ประเภทใบงาน</label>
+                    <select id="workType" required class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+                        <option value="INBOUND">รับเข้า (Inbound)</option>
+                        <option value="ROAST">คั่วกาแฟ (Roast)</option>
+                    </select>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">จำนวนที่สร้าง (Batch)</label>
+                    <input type="number" id="batchCount" value="1" min="1" max="50" required class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-on-surface-variant uppercase">รายการสินค้า (Item)</label>
+                <input type="text" id="itemRef" required placeholder="เช่น กาแฟสาร Brazil..." class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-on-surface-variant uppercase">เป้าหมาย (Limit)</label>
+                <input type="number" id="targetLimit" required min="1" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">กิโล/กระสอบ</label>
+                    <input type="number" id="kgPerBag" value="40" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-xs font-bold text-on-surface-variant uppercase">Lot Code</label>
+                    <input type="text" id="lotCode" placeholder="ระบุเลข Lot (ถ้ามี)" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary uppercase">
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <label class="text-xs font-bold text-on-surface-variant uppercase">ผู้จัดจำหน่าย (Supplier)</label>
+                <input type="text" id="supplier" placeholder="ระบุซัพพลายเออร์" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg font-bold text-primary">
+            </div>
+
+            <button type="submit" id="btnSubmit" class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl mt-4 shadow-sm active:scale-[0.98] transition-transform flex justify-center items-center gap-2">
+                <span class="material-symbols-outlined">add_task</span> ยืนยันสร้างใบงาน
+            </button>
+        </form>
+    </main>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbzxKRgC-DyvyuRWPP2ibCw64fENrVx7qF4WO6997w4oLFtLnM84z5LAbhghD8o6YKPl/exec";
+
+        document.addEventListener("DOMContentLoaded", loadNextWorkId);
+
+        function loadNextWorkId() {
+            const input = document.getElementById('workId');
+            input.value = "กำลังดึงเลขที่...";
+            
+            fetch(API_URL + "?action=getNextWorkId")
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === 'success') input.value = res.data;
+                    else input.value = "Error";
+                })
+                .catch(err => input.value = "Error");
+        }
+
+        function handleCreateWorkOrder(e) {
+            e.preventDefault();
+            const btn = document.getElementById("btnSubmit");
+            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> กำลังบันทึก...';
+            btn.disabled = true;
+
+            const payload = {
+                action: "createNewWorkOrder",
+                data: {
+                    workId: document.getElementById('workId').value,
+                    workType: document.getElementById('workType').value,
+                    itemRef: document.getElementById('itemRef').value,
+                    targetLimit: document.getElementById('targetLimit').value,
+                    batchCount: document.getElementById('batchCount').value,
+                    supplier: document.getElementById('supplier').value,
+                    kgPerBag: document.getElementById('kgPerBag').value,
+                    lotCode: document.getElementById('lotCode').value
+                }
+            };
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if (res.status === 'success') {
+                    alert(res.message);
+                    document.getElementById('createWorkOrderForm').reset();
+                    document.getElementById('batchCount').value = "1";
+                    document.getElementById('kgPerBag').value = "40";
+                    loadNextWorkId(); 
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + res.message);
+                }
+            })
+            .catch(err => alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"))
+            .finally(() => {
+                btn.innerHTML = '<span class="material-symbols-outlined">add_task</span> ยืนยันสร้างใบงาน';
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
