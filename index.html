@@ -28,18 +28,24 @@
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
         ::-webkit-scrollbar { display: none; }
         
-        /* สไตล์สำหรับการ์ดใบงาน */
+        /* 👇 สไตล์ของการ์ดใบงานที่ปรับกรอบและเงาให้ชัดเจนขึ้น 👇 */
         .wo-card {
             background-color: var(--color-surface-container-lowest);
             border-radius: 1rem;
-            border: 1px solid var(--color-outline-variant);
-            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            border: 2px solid #c7b6b3; /* ปรับกรอบให้หนา 2px และสีเข้มขึ้น */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* เพิ่มเงาให้การ์ดลอยออกมา */
             padding: 1rem;
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
             position: relative;
             overflow: hidden;
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+        }
+        /* เอฟเฟกต์ตอนเอานิ้วกดการ์ด */
+        .wo-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
         .wo-card::before {
             content: '';
@@ -47,7 +53,7 @@
             left: 0;
             top: 0;
             bottom: 0;
-            width: 4px;
+            width: 6px; /* ปรับแถบสีด้านซ้ายให้หนาขึ้นนิดนึงเพื่อให้เด่นขึ้น */
             background-color: var(--color-primary);
         }
     </style>
@@ -71,9 +77,9 @@
                 <p class="text-xs font-medium opacity-80 uppercase tracking-wider">ภาพรวมวันนี้</p>
                 <h2 class="text-2xl font-bold mt-1" id="summaryDate">กำลังโหลด...</h2>
             </div>
-            <div class="text-right">
+            <div class="text-right z-10">
                  <p class="text-[10px] font-medium opacity-80 uppercase tracking-wider mb-1">สถานะ</p>
-                 <span class="bg-on-primary text-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase">ออนไลน์</span>
+                 <span class="bg-on-primary text-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase shadow-sm">ออนไลน์</span>
             </div>
         </section>
 
@@ -88,7 +94,7 @@
             </div>
             
             <div id="woContainer" class="flex flex-col gap-3">
-                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border border-outline-variant">
+                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border-2 border-outline-variant">
                     <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูลใบงาน...
                 </div>
             </div>
@@ -130,18 +136,15 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbzxKRgC-DyvyuRWPP2ibCw64fENrVx7qF4WO6997w4oLFtLnM84z5LAbhghD8o6YKPl/exec";
 
         document.addEventListener("DOMContentLoaded", () => {
-            // ตั้งวันที่
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('summaryDate').innerText = new Date().toLocaleDateString('th-TH', options);
-            
-            // โหลดข้อมูล
             loadWorkOrders();
         });
 
         function loadWorkOrders() {
             const container = document.getElementById("woContainer");
             container.innerHTML = `
-                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border border-outline-variant">
+                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border-2 border-outline-variant shadow-sm">
                     <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูลใบงาน...
                 </div>`;
             
@@ -150,7 +153,7 @@
                 .then(res => {
                     if (res.status !== 'success' || !res.data || res.data.length === 0) {
                         container.innerHTML = `
-                            <div class="text-center py-10 text-on-surface-variant font-bold bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col items-center gap-2">
+                            <div class="text-center py-10 text-on-surface-variant font-bold bg-surface-container-lowest rounded-xl border-2 border-outline-variant shadow-sm flex flex-col items-center gap-2">
                                 <span class="material-symbols-outlined text-4xl opacity-50">task</span>
                                 ไม่มีใบงานที่รอดำเนินการ
                             </div>`;
@@ -159,7 +162,6 @@
                     
                     container.innerHTML = '';
                     res.data.forEach(wo => {
-                        // เปลี่ยนดีไซน์เป็นการ์ดแบบแอป
                         let card = `
                         <div class="wo-card">
                             <div class="flex justify-between items-start pl-2">
@@ -174,13 +176,13 @@
                                 <p class="text-sm font-bold text-primary leading-tight">${wo.item}</p>
                             </div>
 
-                            <div class="flex justify-between items-center mt-2 pt-3 border-t border-outline-variant pl-2">
+                            <div class="flex justify-between items-center mt-2 pt-3 border-t-2 border-outline-variant/50 pl-2">
                                 <div>
                                     <p class="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">ความคืบหน้า (พาเลท)</p>
                                     <p class="text-lg font-mono mt-0.5"><span class="font-bold text-primary">${wo.actual}</span><span class="text-xs text-on-surface-variant font-medium"> / ${wo.limit}</span></p>
                                 </div>
                                 
-                                <a href="scanner.html?wo=${wo.woId}" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm">
+                                <a href="scanner.html?wo=${wo.woId}" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-md hover:bg-primary-container">
                                     <span class="material-symbols-outlined text-[16px]">qr_code_scanner</span> สแกนรับของ
                                 </a>
                             </div>
@@ -190,7 +192,7 @@
                 })
                 .catch(err => {
                     container.innerHTML = `
-                        <div class="text-center py-10 text-error font-bold bg-error-container rounded-xl shadow-sm flex flex-col items-center gap-2">
+                        <div class="text-center py-10 text-error font-bold bg-error-container rounded-xl shadow-sm flex flex-col items-center gap-2 border-2 border-error/20">
                             <span class="material-symbols-outlined text-4xl">wifi_off</span>
                             ไม่สามารถเชื่อมต่อระบบได้
                         </div>`;
