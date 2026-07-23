@@ -3,12 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Staff Dashboard - Roastery Ops</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>Roastery Ops - Staff App</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -28,241 +26,174 @@
     </script>
     <style>
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .icon-filled { font-variation-settings: 'FILL' 1; }
         ::-webkit-scrollbar { display: none; }
-        #editModalContent { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .modal-open { transform: translateY(0) !important; }
+        
+        /* สไตล์สำหรับการ์ดใบงาน */
+        .wo-card {
+            background-color: var(--color-surface-container-lowest);
+            border-radius: 1rem;
+            border: 1px solid var(--color-outline-variant);
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .wo-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--color-primary);
+        }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-sans min-h-screen flex flex-col pb-20 antialiased selection:bg-primary selection:text-on-primary relative">
+<body class="bg-surface text-on-surface font-sans min-h-screen flex flex-col pb-20 antialiased">
 
-    <header class="w-full top-0 sticky border-b border-outline-variant bg-surface flex items-center justify-between px-4 h-14 z-40">
-        <button class="text-primary hover:bg-surface-container-high active:scale-95 transition-transform p-2 rounded-full -ml-2">
-            <span class="material-symbols-outlined text-2xl">menu</span>
-        </button>
-        <h1 class="text-xl font-bold tracking-tighter text-primary truncate flex-1 text-center">ROASTERY OPS</h1>
-        <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm">AK</div>
+    <header class="w-full top-0 sticky bg-surface flex items-center justify-between px-4 h-14 z-30 shadow-sm border-b border-outline-variant">
+        <h1 class="text-xl font-bold tracking-tighter text-primary">ROASTERY OPS</h1>
+        <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-primary bg-surface-container-high p-1.5 rounded-full cursor-pointer hover:bg-outline-variant transition-colors">notifications</span>
+        </div>
     </header>
 
-    <main class="p-4 flex flex-col gap-6 max-w-md mx-auto w-full z-10">
-        <!-- ปุ่มสแกนบาร์โค้ดทั่วไป -->
-        <section class="w-full">
-            <a href="scanner.html" class="w-full bg-primary text-on-primary rounded-xl py-8 flex flex-col items-center justify-center gap-3 active:scale-[0.98] transition-transform shadow-md block text-center">
-                <span class="material-symbols-outlined icon-filled text-5xl">qr_code_scanner</span>
-                <span class="text-2xl font-bold">สแกนบาร์โค้ดทั่วไป</span>
-            </a>
+    <main class="p-4 flex flex-col gap-6 w-full max-w-lg mx-auto z-10">
+        
+        <section class="bg-primary text-on-primary rounded-2xl p-4 shadow-md flex justify-between items-center relative overflow-hidden">
+             <div class="absolute right-[-20px] top-[-20px] opacity-10">
+                <span class="material-symbols-outlined" style="font-size: 100px;">inventory_2</span>
+            </div>
+            <div>
+                <p class="text-xs font-medium opacity-80 uppercase tracking-wider">ภาพรวมวันนี้</p>
+                <h2 class="text-2xl font-bold mt-1" id="summaryDate">กำลังโหลด...</h2>
+            </div>
+            <div class="text-right">
+                 <p class="text-[10px] font-medium opacity-80 uppercase tracking-wider mb-1">สถานะ</p>
+                 <span class="bg-on-primary text-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase">ออนไลน์</span>
+            </div>
         </section>
 
-        <!-- ส่วนของ Active Work Orders -->
-        <section id="activeWorkOrdersSection">
+        <section>
             <div class="flex justify-between items-center mb-3">
-                <h2 class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Active Work Orders</h2>
-                <span id="activeWoCount" class="text-xs bg-error-container text-error px-2 py-1 rounded-full font-bold">กำลังโหลด...</span>
+                <h2 class="text-sm font-bold text-on-surface-variant uppercase flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[18px]">assignment</span> ใบงานที่กำลังดำเนินการ
+                </h2>
+                <button onclick="loadWorkOrders()" class="text-primary hover:bg-surface-container-low p-1 rounded-full active:scale-90 transition-transform">
+                    <span class="material-symbols-outlined text-[20px]">refresh</span>
+                </button>
             </div>
             
-            <div id="workOrderContainer" class="flex flex-col gap-3">
-                <div class="text-center py-6 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-lg border border-outline-variant">
-                    <span class="material-symbols-outlined animate-spin align-middle mr-1">sync</span> กำลังดึงข้อมูลใบงาน...
+            <div id="woContainer" class="flex flex-col gap-3">
+                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border border-outline-variant">
+                    <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูลใบงาน...
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- หน้าต่างแก้ไขใบงาน -->
-    <div id="editModal" class="fixed inset-0 bg-on-surface/50 z-50 hidden flex-col justify-end items-center px-2 pb-2">
-        <div class="bg-surface w-full max-w-md rounded-2xl p-6 shadow-xl transform translate-y-full" id="editModalContent">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-primary">ดู / แก้ไขข้อมูลใบงาน</h3>
-                <button onclick="closeEditModal()" class="text-on-surface-variant hover:text-error bg-surface-container-low p-1 rounded-full">
-                    <span class="material-symbols-outlined">close</span>
-                </button>
+    <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-1 py-2 bg-surface border-t border-outline-variant z-40 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        
+        <a href="index.html" class="flex flex-col items-center justify-center text-primary w-[25%] active:scale-90 transition-transform">
+            <div class="bg-secondary-container px-4 py-1 rounded-full mb-1">
+                <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">home</span>
             </div>
-            <div class="flex flex-col gap-4">
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold text-on-surface-variant uppercase">รหัสใบงาน</label>
-                    <input type="text" id="editWoId" disabled class="w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-mono font-bold text-primary opacity-70">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-xs font-bold text-on-surface-variant uppercase">เป้าหมาย (Limit)</label>
-                    <input type="number" id="editLimit" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-primary font-bold focus:border-primary outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase">กิโล/กระสอบ</label>
-                        <input type="number" id="editKg" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-primary font-bold focus:border-primary outline-none">
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs font-bold text-on-surface-variant uppercase">รหัส Lot</label>
-                        <input type="text" id="editLot" class="w-full px-3 py-3 bg-surface-container-lowest border border-outline-variant rounded-lg text-primary font-bold focus:border-primary outline-none uppercase">
-                    </div>
-                </div>
-                <button onclick="saveEditData()" id="btnSaveEdit" class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl mt-2 shadow-sm active:scale-[0.98] transition-transform flex justify-center items-center gap-2">
-                    <span class="material-symbols-outlined">save</span>
-                    บันทึกการแก้ไขใบงาน
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 py-2 bg-surface border-t border-outline-variant z-40">
-        <a href="index.html" class="flex flex-col items-center justify-center text-primary bg-secondary-container rounded-full px-5 py-1.5 active:scale-90 transition-all duration-150">
-            <span class="material-symbols-outlined text-[24px] icon-filled">dashboard</span>
-            <span class="text-[10px] font-bold mt-1">หน้าแรก</span>
+            <span class="text-[10px] font-bold">หน้าแรก</span>
         </a>
-        <button onclick="alert('หน้าคั่วกาแฟกำลังพัฒนาครับ')" class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5 hover:bg-surface-container-high rounded-full active:scale-90 transition-all duration-150">
-            <span class="material-symbols-outlined text-[24px]">local_fire_department</span>
-            <span class="text-[10px] font-bold mt-1">คั่วกาแฟ</span>
-        </button>
-        <a href="admin_dashboard.html" class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5 hover:bg-surface-container-high rounded-full active:scale-90 transition-all duration-150">
-            <span class="material-symbols-outlined text-[24px]">list_alt</span>
-            <span class="text-[10px] font-bold mt-1">แอดมิน</span>
+
+        <a href="scanner.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary w-[25%] active:scale-90 transition-transform">
+            <div class="px-4 py-1 rounded-full mb-1 hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-[24px]">qr_code_scanner</span>
+            </div>
+            <span class="text-[10px] font-bold">สแกนรับเข้า</span>
+        </a>
+
+        <a href="admin_dashboard.html" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary w-[25%] active:scale-90 transition-transform">
+            <div class="px-4 py-1 rounded-full mb-1 hover:bg-surface-container-low">
+                <span class="material-symbols-outlined text-[24px]">manage_accounts</span>
+            </div>
+            <span class="text-[10px] font-bold">จัดการระบบ</span>
+        </a>
+        
+        <a href="#" class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary w-[25%] active:scale-90 transition-transform opacity-50 cursor-not-allowed">
+             <div class="px-4 py-1 rounded-full mb-1">
+                <span class="material-symbols-outlined text-[24px]">inventory_2</span>
+            </div>
+            <span class="text-[10px] font-bold">คลังสินค้า</span>
         </a>
     </nav>
 
     <script>
-        // 🚀 URL ของระบบ API หลังบ้าน
         const API_URL = "https://script.google.com/macros/s/AKfycbzxKRgC-DyvyuRWPP2ibCw64fENrVx7qF4WO6997w4oLFtLnM84z5LAbhghD8o6YKPl/exec";
 
-        document.addEventListener("DOMContentLoaded", loadWorkOrders);
-
-        function handleCardClick(link) { window.location.href = link; }
-
-        function handleEditClick(woId, limit, kg, lot, event) {
-            event.stopPropagation(); 
-            openEditModal(woId, limit, kg, lot);
-        }
-
-        function openEditModal(woId, limit, kg, lot) {
-            document.getElementById('editWoId').value = woId;
-            document.getElementById('editLimit').value = limit;
-            document.getElementById('editKg').value = kg === 'undefined' ? '' : kg;
-            document.getElementById('editLot').value = lot === 'undefined' ? '' : lot;
+        document.addEventListener("DOMContentLoaded", () => {
+            // ตั้งวันที่
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('summaryDate').innerText = new Date().toLocaleDateString('th-TH', options);
             
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('editModalContent');
-            modal.classList.remove('hidden'); modal.classList.add('flex');
-            setTimeout(() => { content.classList.add('modal-open'); }, 10);
-        }
+            // โหลดข้อมูล
+            loadWorkOrders();
+        });
 
-        function closeEditModal() {
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('editModalContent');
-            content.classList.remove('modal-open');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-        }
-
-        // ฟังก์ชันบันทึกแก้ไขใบงานผ่าน Fetch API
-        function saveEditData() {
-            const btn = document.getElementById('btnSaveEdit');
-            btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span> กำลังบันทึก...';
-            btn.disabled = true;
-
-            const payload = {
-                action: "updateWorkOrder",
-                data: {
-                    woId: document.getElementById('editWoId').value,
-                    targetLimit: document.getElementById('editLimit').value,
-                    kgPerBag: document.getElementById('editKg').value,
-                    lotCode: document.getElementById('editLot').value
-                }
-            };
-
-            fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.status === 'success') {
-                    alert(res.message);
-                    closeEditModal();
-                    loadWorkOrders(); 
-                } else {
-                    alert("เกิดข้อผิดพลาด: " + res.message);
-                }
-            })
-            .catch(err => alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้"))
-            .finally(() => {
-                btn.innerHTML = '<span class="material-symbols-outlined">save</span> บันทึกการแก้ไข';
-                btn.disabled = false;
-            });
-        }
-
-        // ฟังก์ชันโหลดข้อมูลผ่าน Fetch API
         function loadWorkOrders() {
-            const container = document.getElementById('workOrderContainer');
-            const badge = document.getElementById('activeWoCount');
-            const section = document.getElementById('activeWorkOrdersSection');
-
+            const container = document.getElementById("woContainer");
+            container.innerHTML = `
+                <div class="text-center py-8 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-xl border border-outline-variant">
+                    <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูลใบงาน...
+                </div>`;
+            
             fetch(API_URL + "?action=getActiveWorkOrders")
                 .then(res => res.json())
                 .then(res => {
                     if (res.status !== 'success' || !res.data || res.data.length === 0) {
-                        section.style.display = 'block';
-                        badge.innerText = '0 รอดำเนินการ';
                         container.innerHTML = `
-                            <div class="text-center py-8 text-on-surface-variant bg-surface-container-lowest rounded-lg border border-outline-variant shadow-sm flex flex-col items-center justify-center gap-2">
-                                <span class="material-symbols-outlined text-4xl text-outline-variant">task_alt</span>
-                                <span class="font-bold text-sm">ไม่มีใบงานค้างอยู่</span>
+                            <div class="text-center py-10 text-on-surface-variant font-bold bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col items-center gap-2">
+                                <span class="material-symbols-outlined text-4xl opacity-50">task</span>
+                                ไม่มีใบงานที่รอดำเนินการ
                             </div>`;
                         return;
                     }
-
-                    section.style.display = 'block';
-                    container.innerHTML = ''; 
-                    badge.innerText = res.data.length + ' รอดำเนินการ';
                     
-                    res.data.forEach(function(wo) {
-                        let typeText = "งาน", unit = "รายการ", link = "#";
-                        let borderColor = "border-primary", labelBg = "bg-secondary-container", labelText = "text-on-secondary-container";
-                        
-                        if(wo.type === "INBOUND") {
-                            typeText = "รับเข้า"; unit = "กระสอบ";
-                            link = `scanner.html?woId=${wo.woId}&kg=${wo.kgPerBag || 40}`; 
-                        }
-
-                        if(wo.status === "Re-opened") {
-                            borderColor = "border-error"; labelBg = "bg-error-container"; labelText = "text-error";
-                        }
-
-                        let supplierHtml = wo.supplier ? `<p class="text-[11px] text-on-surface-variant mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-48">จาก: ${wo.supplier}</p>` : '';
-
-                        let cardHtml = `
-                        <div onclick="handleCardClick('${link}')" class="bg-surface-container-lowest border-2 ${borderColor} rounded-lg p-4 flex flex-col gap-3 shadow-sm relative overflow-hidden active:scale-[0.98] transition-transform cursor-pointer select-none">
-                            <div class="absolute left-0 top-0 bottom-0 w-1 ${wo.status === 'Re-opened' ? 'bg-error' : 'bg-primary'} rounded-l-lg"></div>
-                            <div class="flex justify-between items-start">
+                    container.innerHTML = '';
+                    res.data.forEach(wo => {
+                        // เปลี่ยนดีไซน์เป็นการ์ดแบบแอป
+                        let card = `
+                        <div class="wo-card">
+                            <div class="flex justify-between items-start pl-2">
                                 <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs font-mono font-bold text-primary bg-surface-container-high px-2 py-1 rounded">${wo.woId}</span>
-                                        <button onclick="handleEditClick('${wo.woId}', '${wo.limit}', '${wo.kgPerBag || ''}', '${wo.lotCode || ''}', event)" class="text-on-surface-variant hover:text-primary p-1 bg-surface-container-low rounded-full flex items-center justify-center transition-colors active:scale-90 border border-outline-variant">
-                                            <span class="material-symbols-outlined text-[16px]">visibility</span>
-                                        </button>
-                                    </div>
-                                    <h3 class="text-lg font-bold text-primary mt-1">${typeText}: ${wo.item}</h3>
-                                    ${supplierHtml}
+                                    <span class="text-[9px] font-bold text-on-surface-variant uppercase bg-surface-container-high px-2 py-0.5 rounded-md tracking-wider">${wo.type}</span>
+                                    <h3 class="font-mono font-bold text-primary mt-1 text-base leading-none">${wo.woId}</h3>
                                 </div>
-                                <span class="text-[10px] font-bold ${labelBg} ${labelText} px-2 py-1 rounded uppercase whitespace-nowrap">${wo.status}</span>
+                                <span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">${wo.status}</span>
                             </div>
-                            <div class="flex justify-between items-end border-t border-outline-variant pt-3">
-                                <div class="flex flex-col">
-                                    <span class="text-xs text-on-surface-variant font-bold uppercase">ความคืบหน้า</span>
-                                    <div class="flex items-baseline gap-1">
-                                        <span class="font-mono text-xl font-bold text-primary">${wo.actual}</span>
-                                        <span class="font-mono text-sm text-on-surface-variant">/ ${wo.limit} ${unit}</span>
-                                    </div>
+
+                            <div class="pl-2 mt-1">
+                                <p class="text-sm font-bold text-primary leading-tight">${wo.item}</p>
+                            </div>
+
+                            <div class="flex justify-between items-center mt-2 pt-3 border-t border-outline-variant pl-2">
+                                <div>
+                                    <p class="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider">ความคืบหน้า (พาเลท)</p>
+                                    <p class="text-lg font-mono mt-0.5"><span class="font-bold text-primary">${wo.actual}</span><span class="text-xs text-on-surface-variant font-medium"> / ${wo.limit}</span></p>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center">
-                                    <span class="material-symbols-outlined text-primary text-[20px]">arrow_forward</span>
-                                </div>
+                                
+                                <a href="scanner.html?wo=${wo.woId}" class="bg-primary text-on-primary px-3 py-1.5 rounded-lg text-xs font-bold active:scale-95 transition-transform flex items-center gap-1 shadow-sm">
+                                    <span class="material-symbols-outlined text-[16px]">qr_code_scanner</span> สแกนรับของ
+                                </a>
                             </div>
                         </div>`;
-                        container.innerHTML += cardHtml;
+                        container.innerHTML += card;
                     });
                 })
                 .catch(err => {
-                    container.innerHTML = `<div class="text-center py-6 text-error font-bold text-sm bg-error-container rounded-lg">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>`;
+                    container.innerHTML = `
+                        <div class="text-center py-10 text-error font-bold bg-error-container rounded-xl shadow-sm flex flex-col items-center gap-2">
+                            <span class="material-symbols-outlined text-4xl">wifi_off</span>
+                            ไม่สามารถเชื่อมต่อระบบได้
+                        </div>`;
                 });
         }
     </script>
