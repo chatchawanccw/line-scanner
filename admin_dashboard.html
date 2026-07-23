@@ -29,53 +29,91 @@
         ::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-sans min-h-screen flex flex-col pb-24 antialiased relative">
+<body class="bg-surface text-on-surface font-sans min-h-screen antialiased relative">
 
-    <!-- เมนูด้านบน -->
-    <header class="w-full top-0 sticky border-b border-outline-variant bg-surface flex items-center px-4 h-14 z-30 shadow-sm">
-        <button onclick="toggleSidebar()" class="mr-3 p-1.5 rounded-full hover:bg-surface-container-high active:scale-90 transition-all">
-            <span class="material-symbols-outlined text-primary text-[24px]">menu</span>
-        </button>
-        <h1 class="text-xl font-bold tracking-tighter text-primary flex-1">ADMIN DASHBOARD</h1>
-    </header>
-
-    <!-- แผง Sidebar ด้านข้าง -->
-    <div id="sidebarOverlay" class="fixed inset-0 bg-on-surface/50 z-40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm" onclick="toggleSidebar()"></div>
+    <div id="sidebarOverlay" class="fixed inset-0 bg-on-surface/50 z-40 hidden opacity-0 transition-opacity duration-300 backdrop-blur-sm md:hidden" onclick="toggleSidebar()"></div>
     
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 transform -translate-x-full transition-transform duration-300 flex flex-col shadow-2xl">
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-surface-container-lowest border-r border-outline-variant z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col shadow-2xl md:shadow-none">
         <div class="h-14 flex items-center justify-between px-4 border-b border-outline-variant bg-surface">
             <h2 class="font-bold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined">menu_open</span> เมนูจัดการ
+                <span class="material-symbols-outlined text-[20px]">admin_panel_settings</span> Roastery Admin
             </h2>
-            <button onclick="toggleSidebar()" class="text-on-surface-variant hover:text-error p-1 rounded-full active:scale-90 transition-transform">
+            <button onclick="toggleSidebar()" class="text-on-surface-variant hover:text-error p-1 rounded-full active:scale-90 transition-transform md:hidden">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
         
         <nav class="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
-            <a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors shadow-sm border border-transparent hover:border-outline-variant">
-                <span class="material-symbols-outlined text-primary">add_box</span> สร้างใบงาน
+            <a href="admin_dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-primary bg-surface-container-low transition-colors shadow-sm border border-primary/20">
+                <span class="material-symbols-outlined text-primary text-[20px]">space_dashboard</span> ภาพรวมระบบ
             </a>
-            <a href="qrcode.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors shadow-sm border border-transparent hover:border-outline-variant">
-                <span class="material-symbols-outlined text-primary">qr_code_2</span> สร้าง QR Code
+            <a href="admin.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors border border-transparent hover:border-outline-variant">
+                <span class="material-symbols-outlined text-[20px]">add_box</span> สร้างใบงาน
+            </a>
+            <a href="qrcode.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors border border-transparent hover:border-outline-variant">
+                <span class="material-symbols-outlined text-[20px]">qr_code_2</span> สร้าง QR Code
+            </a>
+            <div class="my-2 border-b border-outline-variant"></div>
+            <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors border border-transparent hover:border-outline-variant">
+                <span class="material-symbols-outlined text-[20px]">home</span> กลับหน้าแอปพนักงาน
             </a>
         </nav>
-        
-        <div class="p-4 border-t border-outline-variant bg-surface-container-low">
-            <p class="text-[10px] text-center text-on-surface-variant font-bold">Roastery Ops System v1.0</p>
-        </div>
     </aside>
 
-    <!-- พื้นที่แสดงข้อมูลแบบ "การ์ด" -->
-    <main class="p-4 w-full max-w-2xl mx-auto z-10 flex flex-col gap-4" id="woContainer">
-        <!-- สถานะตอนกำลังโหลด -->
-        <div class="text-center py-10 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm">
-            <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูล...
-        </div>
-    </main>
+    <div class="md:ml-64 flex flex-col min-h-screen pb-20 md:pb-4">
+        
+        <header class="w-full top-0 sticky border-b border-outline-variant bg-surface/90 backdrop-blur-md flex items-center px-4 h-14 z-30 shadow-sm">
+            <button onclick="toggleSidebar()" class="mr-3 p-1.5 rounded-full hover:bg-surface-container-high active:scale-90 transition-all md:hidden">
+                <span class="material-symbols-outlined text-primary text-[24px]">menu</span>
+            </button>
+            <h1 class="text-lg font-bold tracking-tighter text-primary flex-1">ADMIN DASHBOARD</h1>
+            <div class="flex items-center gap-2">
+                <button onclick="loadWorkOrders()" class="p-1.5 rounded-full hover:bg-surface-container-high active:scale-90 transition-all text-on-surface-variant hover:text-primary">
+                    <span class="material-symbols-outlined text-[22px]">refresh</span>
+                </button>
+            </div>
+        </header>
 
-    <!-- Bottom Nav -->
-    <nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-2 py-2 bg-surface border-t border-outline-variant z-20">
+        <main class="p-4 w-full max-w-7xl mx-auto z-10 flex flex-col gap-6">
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-1 justify-center relative overflow-hidden">
+                    <span class="material-symbols-outlined absolute right-[-10px] top-[-10px] text-5xl text-outline-variant opacity-20">assignment</span>
+                    <p class="text-[11px] font-bold text-on-surface-variant uppercase">ใบงานทั้งหมด</p>
+                    <h3 class="text-2xl font-bold text-primary font-mono" id="statTotal">-</h3>
+                </div>
+                <div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-1 justify-center relative overflow-hidden">
+                    <span class="material-symbols-outlined absolute right-[-10px] top-[-10px] text-5xl text-outline-variant opacity-20">inventory_2</span>
+                    <p class="text-[11px] font-bold text-on-surface-variant uppercase">ประเภท INBOUND</p>
+                    <h3 class="text-2xl font-bold text-primary font-mono" id="statInbound">-</h3>
+                </div>
+                <div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-1 justify-center relative overflow-hidden">
+                    <span class="material-symbols-outlined absolute right-[-10px] top-[-10px] text-5xl text-outline-variant opacity-20">local_fire_department</span>
+                    <p class="text-[11px] font-bold text-on-surface-variant uppercase">ประเภท ROAST</p>
+                    <h3 class="text-2xl font-bold text-primary font-mono" id="statRoast">-</h3>
+                </div>
+                <div class="bg-surface-container-lowest p-4 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-1 justify-center relative overflow-hidden">
+                    <span class="material-symbols-outlined absolute right-[-10px] top-[-10px] text-5xl text-error opacity-10">warning</span>
+                    <p class="text-[11px] font-bold text-error uppercase">สินค้ายังไม่ครบเป้า</p>
+                    <h3 class="text-2xl font-bold text-error font-mono" id="statPending">-</h3>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-sm font-bold text-on-surface-variant uppercase mb-3 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[18px]">list_alt</span> ใบงานที่กำลังดำเนินการ
+                </h2>
+                
+                <div id="woContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <div class="col-span-full text-center py-10 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm">
+                        <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูล...
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <nav class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-2 py-2 bg-surface border-t border-outline-variant z-40">
         <a href="index.html" class="flex flex-col items-center justify-center text-on-surface-variant px-5 py-1.5 hover:bg-surface-container-high rounded-full active:scale-90 transition-all duration-150">
             <span class="material-symbols-outlined text-[24px]">dashboard</span>
             <span class="text-[10px] font-bold mt-1">หน้าแรก</span>
@@ -91,7 +129,7 @@
 
         document.addEventListener("DOMContentLoaded", loadWorkOrders);
 
-        // ระบบเปิด-ปิด Sidebar
+        // ระบบเปิด-ปิด Sidebar สำหรับมือถือ
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -107,16 +145,25 @@
             }
         }
 
-        // ระบบดึงข้อมูลใบงานและสร้างการ์ด
+        // ระบบดึงข้อมูลใบงานและสรุปยอด
         function loadWorkOrders() {
             const container = document.getElementById("woContainer");
+            container.innerHTML = `
+                <div class="col-span-full text-center py-10 text-on-surface-variant animate-pulse font-bold text-sm bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm">
+                    <span class="material-symbols-outlined animate-spin align-middle mr-2">sync</span> กำลังดึงข้อมูล...
+                </div>`;
             
             fetch(API_URL + "?action=getActiveWorkOrders")
                 .then(res => res.json())
                 .then(res => {
                     if (res.status !== 'success' || !res.data || res.data.length === 0) {
+                        document.getElementById('statTotal').innerText = "0";
+                        document.getElementById('statInbound').innerText = "0";
+                        document.getElementById('statRoast').innerText = "0";
+                        document.getElementById('statPending').innerText = "0";
+                        
                         container.innerHTML = `
-                            <div class="text-center py-10 text-on-surface-variant font-bold bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm flex flex-col items-center gap-2">
+                            <div class="col-span-full text-center py-10 text-on-surface-variant font-bold bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm flex flex-col items-center gap-2">
                                 <span class="material-symbols-outlined text-4xl opacity-50">inbox</span>
                                 ไม่มีใบงานที่กำลังดำเนินการ
                             </div>`;
@@ -124,37 +171,42 @@
                     }
                     
                     container.innerHTML = '';
+                    let total = res.data.length;
+                    let inbound = 0;
+                    let roast = 0;
+                    let pending = 0;
+
                     res.data.forEach(wo => {
+                        // คำนวณสรุปยอด
+                        if (wo.type === 'INBOUND') inbound++;
+                        if (wo.type === 'ROAST') roast++;
+                        if (parseInt(wo.actual) < parseInt(wo.limit)) pending++;
+
                         let btnHtml = '';
                         if (wo.status === 'In-Progress' || wo.status === 'Re-opened') {
-                            btnHtml = `<button onclick="cancelWorkOrder('${wo.woId}')" class="text-error bg-error-container hover:bg-error hover:text-on-primary px-3 py-2 rounded-lg text-[11px] font-bold transition-colors active:scale-95 shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">cancel</span> ยกเลิก</button>`;
+                            btnHtml = `<button onclick="cancelWorkOrder('${wo.woId}')" class="text-error bg-error-container hover:bg-error hover:text-on-primary px-3 py-1.5 rounded-lg text-[11px] font-bold transition-colors active:scale-95 shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">cancel</span> ยกเลิก</button>`;
                         }
                         
-                        // สร้างการ์ดแทนตาราง
                         let card = `
-                        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-4 flex flex-col gap-3 relative overflow-hidden">
-                            <!-- แถบสีตกแต่งด้านซ้าย -->
+                        <div class="bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-sm p-4 flex flex-col gap-3 relative overflow-hidden h-full justify-between hover:border-primary transition-colors">
                             <div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
                             
-                            <!-- ส่วนหัว: ID และ สถานะ -->
                             <div class="flex justify-between items-start pl-2">
                                 <div>
-                                    <span class="text-[9px] font-bold text-on-surface-variant uppercase bg-surface-container-high border border-outline-variant px-2 py-0.5 rounded-md tracking-wider">${wo.type}</span>
-                                    <h3 class="font-mono font-bold text-primary mt-1 text-lg">${wo.woId}</h3>
+                                    <span class="text-[9px] font-bold text-on-surface-variant uppercase bg-surface-container-high px-2 py-0.5 rounded-md tracking-wider">${wo.type}</span>
+                                    <h3 class="font-mono font-bold text-primary mt-1 text-base">${wo.woId}</h3>
                                 </div>
                                 <span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">${wo.status}</span>
                             </div>
 
-                            <!-- ส่วนกลาง: รายการสินค้า -->
-                            <div class="pl-2">
+                            <div class="pl-2 mt-1 mb-2">
                                 <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">รายการสินค้า</p>
                                 <p class="text-sm font-bold text-primary leading-tight mt-0.5">${wo.item}</p>
                             </div>
 
-                            <!-- ส่วนท้าย: ความคืบหน้า และ ปุ่มจัดการ -->
-                            <div class="flex justify-between items-end mt-1 pt-3 border-t border-outline-variant pl-2">
+                            <div class="flex justify-between items-end mt-auto pt-3 border-t border-outline-variant pl-2">
                                 <div>
-                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">พาเลทที่รับเข้าแล้ว</p>
+                                    <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">พาเลทรับเข้า</p>
                                     <p class="text-xl font-mono mt-0.5"><span class="font-bold text-primary">${wo.actual}</span><span class="text-sm text-on-surface-variant font-medium"> / ${wo.limit}</span></p>
                                 </div>
                                 ${btnHtml}
@@ -162,10 +214,16 @@
                         </div>`;
                         container.innerHTML += card;
                     });
+
+                    // อัปเดตตัวเลขในกล่องสรุป
+                    document.getElementById('statTotal').innerText = total;
+                    document.getElementById('statInbound').innerText = inbound;
+                    document.getElementById('statRoast').innerText = roast;
+                    document.getElementById('statPending').innerText = pending;
                 })
                 .catch(err => {
                     container.innerHTML = `
-                        <div class="text-center py-10 text-error font-bold bg-error-container rounded-2xl shadow-sm flex flex-col items-center gap-2">
+                        <div class="col-span-full text-center py-10 text-error font-bold bg-error-container rounded-2xl shadow-sm flex flex-col items-center gap-2">
                             <span class="material-symbols-outlined text-4xl">wifi_off</span>
                             ไม่สามารถเชื่อมต่อระบบได้
                         </div>`;
